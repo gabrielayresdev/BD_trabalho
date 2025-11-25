@@ -6,7 +6,7 @@ CREATE TABLE carta (
     nome VARCHAR(100) NOT NULL,
     custo_elixir INT NOT NULL,
     raridade VARCHAR(50),
-    tipo VARCHAR(50)
+    url_image VARCHAR(255)
 );
 
 CREATE TABLE deck (

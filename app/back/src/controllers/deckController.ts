@@ -124,7 +124,7 @@ class DeckController {
       OFFSET ${Number(offset)};
     `;
 
-      const result = await prisma.$queryRawUnsafe<
+      const decks = await prisma.$queryRawUnsafe<
         {
           id_deck: number;
           total_partidas: number;
@@ -134,7 +134,26 @@ class DeckController {
         }[]
       >(query);
 
-      return res.json(result);
+      const deckIds = decks.map((d) => d.id_deck);
+
+      const cartas = await prisma.$queryRaw<
+        { id_deck: number; id_carta: number; nome: string }[]
+      >(Prisma.sql`
+        SELECT dc.id_deck, c.id_carta, c.nome
+        FROM deck_carta dc
+        JOIN carta c ON c.id_carta = dc.id_carta
+        WHERE dc.id_deck IN (${Prisma.join(deckIds)});
+      `);
+
+      const result = decks.map((deck) => ({
+        ...deck,
+        cartas: cartas
+          .filter((carta) => carta.id_deck === deck.id_deck)
+          .map((carta) => ({ id_carta: carta.id_carta, nome: carta.nome })),
+      }));
+
+      const serializedResult = JSON.parse(serializeBigInt(result));
+      return res.json(serializedResult);
     } catch (err) {
       console.error("Erro getSuggestedDecks:", err);
       return res.status(500).json({ error: "Erro interno do servidor" });

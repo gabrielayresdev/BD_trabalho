@@ -1,0 +1,147 @@
+.conteiner {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.header {
+  margin-bottom: 30px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid var(--cor-borda);
+}
+
+.titulo {
+  font-size: 24px;
+  font-weight: 700;
+  margin-bottom: 15px;
+}
+
+.barra-busca {
+  width: 100%;
+  padding: 12px 15px;
+  background-color: var(--fundo-painel);
+  border: 1px solid var(--cor-borda);
+  color: white;
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+.barra-busca:focus {
+  outline: none;
+  border-color: var(--texto-suave);
+}
+
+.btn-container {
+  text-align: center;
+  margin-top: 30px;
+}
+
+.btn-carregar {
+  background: #2a2e3f;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  cursor: pointer;
+  border-radius: 4px;
+}
+
+.carregando {
+  text-align: center;
+  padding: 50px;
+  color: var(--texto-suave);
+}
+
+.toggle-container {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 30px;
+  background-color: var(--fundo-painel);
+  padding: 5px;
+  border-radius: 8px;
+  width: fit-content;
+  margin-left: auto;
+  margin-right: auto;
+  border: 1px solid var(--cor-borda);
+}
+
+.btn-toggle {
+  background: transparent;
+  border: none;
+  color: var(--texto-suave);
+  padding: 8px 20px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 14px;
+  transition: all 0.2s ease;
+}
+
+.btn-toggle:hover {
+  color: var(--texto-principal);
+}
+
+.btn-toggle.ativo {
+  background-color: var(--destaque-link); 
+  color: white;
+}
+
+.grade-todas-cartas {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); 
+  gap: 15px;
+  margin-bottom: 30px;
+}
+
+.wrapper-carta.grande {
+  width: 100%;
+  max-width: 100%;
+  aspect-ratio: 0.8; 
+  text-decoration: none; 
+}
+
+.nome-carta-overlay {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  padding: 25px 5px 5px; 
+  font-size: 12px;
+  font-weight: bold;
+  color: white;
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  z-index: 1;
+}
+
+.wrapper-carta.grande .img-carta {
+  transform: scale(1.05);
+  transition: transform 0.3s ease;
+}
+
+.wrapper-carta.grande:hover .img-carta {
+  transform: scale(1.15);
+}
+
+@media (max-width: 480px) {
+  .grade-todas-cartas {
+    grid-template-columns: repeat(3, 1fr); 
+    gap: 8px;
+  }
+  
+  .nome-carta-overlay {
+    font-size: 10px; 
+  }
+  
+  .toggle-container {
+    width: 100%; 
+  }
+  
+  .btn-toggle {
+    flex: 1; 
+    padding: 8px 10px;
+    font-size: 13px;
+  }
+}

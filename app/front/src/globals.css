@@ -1,0 +1,174 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --fundo-pagina: #10121b;
+  --fundo-painel: #1c1f2e;
+  --fundo-painel-hover: #252a3d;
+  --texto-principal: #ffffff;
+  --texto-suave: #8890a5;
+  --cor-borda: #2a2e3f;
+  --destaque-link: #3b82f6;
+  --destaque-tier-s: #ff6b6b;
+  --destaque-elixir: #d549d9;
+
+  --raridade-comum: #94a3b8;
+  --raridade-rara: #f97316;
+  --raridade-epica: #d946ef;
+  --raridade-lendaria: #2dd4bf;
+  --raridade-campeao: #facc15;
+}
+
+body {
+  background-color: var(--fundo-pagina);
+  color: var(--texto-principal);
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  margin: 0;
+}
+
+.lista-decks {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.linha-deck {
+  display: flex;
+  align-items: center;
+  background-color: var(--fundo-painel);
+  border: 1px solid var(--cor-borda);
+  border-radius: 6px;
+  padding: 12px;
+  transition: background-color 0.2s ease;
+}
+
+.linha-deck:hover {
+  background-color: var(--fundo-painel-hover);
+}
+
+.emblema-tier {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  background-color: rgba(255, 107, 107, 0.15);
+  border: 1px solid var(--destaque-tier-s);
+  color: var(--destaque-tier-s);
+  font-weight: bold;
+  font-size: 20px;
+  border-radius: 4px;
+  margin-right: 20px;
+  flex-shrink: 0;
+}
+
+.info-deck {
+  width: 180px;
+  margin-right: 20px;
+  flex-shrink: 0;
+}
+
+.nome-deck {
+  font-weight: 600;
+  font-size: 15px;
+  display: block;
+  margin-bottom: 4px;
+  color: #fff;
+}
+
+.meta-deck {
+  font-size: 12px;
+  color: var(--texto-suave);
+  display: flex;
+  gap: 8px;
+}
+
+.etiqueta {
+  background: #2a2e3f;
+  padding: 2px 6px;
+  border-radius: 3px;
+}
+
+.conteiner-cartas {
+  display: flex;
+  gap: 8px;
+  flex-grow: 1;
+  flex-wrap: wrap;
+}
+
+.wrapper-carta {
+  position: relative;
+  width: 70px;
+  max-width: 100px;
+  aspect-ratio: 0.8;
+  border-radius: 4px;
+  overflow: hidden;
+  border: 2px solid transparent;
+  transition: transform 0.2s;
+}
+
+.wrapper-carta:hover {
+  transform: translateY(-3px);
+  border-color: #fff;
+  z-index: 10;
+}
+
+.img-carta {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  transform: scale(1.1);
+}
+
+.custo-elixir {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  background-color: var(--destaque-elixir);
+  color: white;
+  font-size: 10px;
+  font-weight: bold;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(0, 0, 0, 0.5);
+  z-index: 2;
+}
+
+.estatisticas-deck {
+  margin-left: auto;
+  padding-left: 20px;
+  text-align: right;
+  min-width: 80px;
+}
+
+.media-elixir {
+  color: var(--destaque-elixir);
+  font-weight: bold;
+  font-size: 14px;
+}
+
+.rotulo-media {
+  display: block;
+  font-size: 11px;
+  color: var(--texto-suave);
+}
+
+@media (max-width: 768px) {
+  .linha-deck {
+    flex-wrap: wrap;
+  }
+  .conteiner-cartas {
+    margin-top: 10px;
+    width: 100%;
+  }
+  .estatisticas-deck {
+    margin-left: 0;
+    margin-top: 10px;
+    text-align: left;
+  }
+}

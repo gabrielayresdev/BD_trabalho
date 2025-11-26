@@ -74,6 +74,36 @@ class CardController {
       return res.status(500).json({ error: "Erro interno do servidor" });
     }
   }
+
+  public async getMostUsedCards(req: Request, res: Response) {
+    try {
+      const cards = await prisma.$queryRaw<
+        {
+          id_carta: number;
+          nome: string;
+          total_usos: number;
+        }[]
+      >(Prisma.sql`
+        SELECT 
+          c.id_carta,
+          c.nome,
+          COUNT(*) AS total_usos
+        FROM batalha b
+        JOIN deck d ON d.id_deck = b.id_deck_vencedor
+            OR d.id_deck = b.id_deck_perdedor
+        JOIN deck_carta dc ON dc.id_deck = d.id_deck
+        JOIN carta c ON c.id_carta = dc.id_carta
+        GROUP BY c.id_carta, c.nome
+        ORDER BY total_usos DESC;
+      `);
+
+      const serialized = JSON.parse(serializeBigInt(cards));
+      return res.json(serialized);
+    } catch (err) {
+      console.error("Erro getMostUsedCards:", err);
+      return res.status(500).json({ error: "Erro interno do servidor" });
+    }
+  }
 }
 
 export default new CardController();

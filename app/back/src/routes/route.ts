@@ -9,6 +9,7 @@ route.get("/decks/top", deckController.getBestDecks);
 route.post("/decks/suggestion", deckController.getDeckSuggestion);
 
 route.get("/cards", cardController.getBestDecks);
+route.get("/cards/most-used", cardController.getMostUsedCards);
 route.get("/cards/:id", cardController.getCardById);
 
 route.get("/players/never-won", playerController.neverWon);

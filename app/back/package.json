@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "ts-node src/server.ts",
+    "start": "npx ts-node-dev --transpile-only --no-notify ./src/server.ts",
     "build": "tsc",
     "serve": "node dist/index.js"
   },
@@ -13,6 +13,7 @@
   "license": "ISC",
   "packageManager": "pnpm@10.13.1",
   "devDependencies": {
+    "@types/cors": "^2.8.19",
     "@types/express": "^5.0.5",
     "@types/node": "^24.10.1",
     "express": "^5.1.0",
@@ -24,6 +25,7 @@
     "@prisma/adapter-mariadb": "^7.0.0",
     "@prisma/client": "^7.0.0",
     "@types/express-validator": "^3.0.2",
+    "cors": "^2.8.5",
     "express-validator": "^7.3.1",
     "prisma": "^7.0.0"
   }

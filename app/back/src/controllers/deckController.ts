@@ -59,9 +59,16 @@ class DeckController {
       const deckIds = decks.map((d) => d.id_deck);
 
       const cartas = await prisma.$queryRaw<
-        { id_deck: number; id_carta: number; nome: string }[]
+        {
+          id_deck: number;
+          id_carta: number;
+          nome: string;
+          custo_elixir: number;
+          raridade: string;
+          url_image: string;
+        }[]
       >(Prisma.sql`
-        SELECT dc.id_deck, c.id_carta, c.nome
+        SELECT dc.id_deck, c.id_carta, c.nome, c.custo_elixir, c.raridade, c.url_image
         FROM deck_carta dc
         JOIN carta c ON c.id_carta = dc.id_carta
         WHERE dc.id_deck IN (${Prisma.join(deckIds)});
@@ -71,7 +78,13 @@ class DeckController {
         ...deck,
         cartas: cartas
           .filter((carta) => carta.id_deck === deck.id_deck)
-          .map((carta) => ({ id_carta: carta.id_carta, nome: carta.nome })),
+          .map((carta) => ({
+            id_carta: carta.id_carta,
+            nome: carta.nome,
+            custo_elixir: carta.custo_elixir,
+            raridade: carta.raridade,
+            url_image: carta.url_image,
+          })),
       }));
 
       const serializedResult = JSON.parse(serializeBigInt(result));

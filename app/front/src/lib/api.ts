@@ -37,3 +37,17 @@ export async function fetchDeckSuggestion(cardIds: number[]) {
 
   return data;
 }
+
+export async function fetchBestPlayers() {
+  const data = await request("/players/best");
+  return data;
+}
+
+export async function fetchNeverWonPlayers() {
+    const data = await request("/players/best");
+  return data;
+}
+
+export async function fetchAboveAveragePlayers() {
+  return await request("/players/above-average-trophies");
+}

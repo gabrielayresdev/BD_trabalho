@@ -1,14 +1,14 @@
 import { useEffect, useState, useMemo } from "react";
 import { Link } from "react-router-dom";
-import { 
-  fetchCards, 
-  fetchTopCards, 
-  fetchBestPlayers, 
-  fetchNeverWonPlayers 
+import {
+  fetchCards,
+  fetchTopCards,
+  fetchBestPlayers,
+  fetchNeverWonPlayers,
 } from "../../lib/api";
 import DeckRow from "../../components/DeckRow";
-import PlayerRow from "../../components/PlayerRow"; 
-import Header from "../../components/Header"; 
+import PlayerRow from "../../components/PlayerRow";
+import Header from "../../components/Header";
 import "./Home.css";
 
 interface Card {
@@ -43,7 +43,7 @@ export default function Home() {
   const [topDecks, setTopDecks] = useState<Deck[]>([]);
   const [bestPlayers, setBestPlayers] = useState<Player[]>([]);
   const [worstPlayers, setWorstPlayers] = useState<Player[]>([]);
-  
+
   const [busca, setBusca] = useState<string>("");
   const [pagina, setPagina] = useState<number>(1);
   const [carregando, setCarregando] = useState<boolean>(true);
@@ -54,7 +54,7 @@ export default function Home() {
       try {
         const [decksData, cardsData] = await Promise.all([
           fetchTopCards(),
-          fetchCards()
+          fetchCards(),
         ]);
         setTopDecks(decksData || []);
         setCartas(cardsData || []);
@@ -74,7 +74,7 @@ export default function Home() {
         try {
           const [best, worst] = await Promise.all([
             fetchBestPlayers(),
-            fetchNeverWonPlayers()
+            fetchNeverWonPlayers(),
           ]);
           setBestPlayers(best || []);
           setWorstPlayers(worst || []);
@@ -94,12 +94,14 @@ export default function Home() {
 
   const conteudoCartas = useMemo(() => {
     if (!busca) return cartas;
-    return cartas.filter(c => c.nome.toLowerCase().includes(busca.toLowerCase()));
+    return cartas.filter((c) =>
+      c.nome.toLowerCase().includes(busca.toLowerCase())
+    );
   }, [cartas, busca]);
 
   return (
     <div className="conteiner">
-      <Header busca={busca} setBusca={setBusca} />
+      <Header />
 
       <div className="toggle-container">
         <button
@@ -142,8 +144,13 @@ export default function Home() {
                 ) : (
                   <div className="msg-vazio">Nenhum deck encontrado.</div>
                 )}
-                 <div className="btn-container">
-                  <button onClick={() => setPagina(p => p + 1)} className="btn-carregar">Carregar mais</button>
+                <div className="btn-container">
+                  <button
+                    onClick={() => setPagina((p) => p + 1)}
+                    className="btn-carregar"
+                  >
+                    Carregar mais
+                  </button>
                 </div>
               </div>
             )}
@@ -170,7 +177,12 @@ export default function Home() {
                 </div>
                 {conteudoCartas.length > 0 && (
                   <div className="btn-container">
-                    <button onClick={() => setPagina(p => p + 1)} className="btn-carregar">Carregar mais</button>
+                    <button
+                      onClick={() => setPagina((p) => p + 1)}
+                      className="btn-carregar"
+                    >
+                      Carregar mais
+                    </button>
                   </div>
                 )}
               </>
@@ -179,45 +191,71 @@ export default function Home() {
             {abaAtiva === "players" && (
               <div className="secao-jogadores">
                 <div className="coluna-lista" style={{ marginBottom: 40 }}>
-                  <h2 className="titulo-secao-lista" style={{ color: "#2dd4bf", borderLeft: "4px solid #2dd4bf", paddingLeft: 10 }}>
+                  <h2
+                    className="titulo-secao-lista"
+                    style={{
+                      color: "#2dd4bf",
+                      borderLeft: "4px solid #2dd4bf",
+                      paddingLeft: 10,
+                    }}
+                  >
                     Top Players
                   </h2>
                   <div className="lista-decks">
                     {bestPlayers.slice(0, 5 * pagina).map((player, index) => (
-                      <PlayerRow 
-                        key={`best-${player.tag_jogador}`} 
-                        player={player} 
-                        tipo="melhor" 
-                        rank={index + 1} 
+                      <PlayerRow
+                        key={`best-${player.tag_jogador}`}
+                        player={player}
+                        tipo="melhor"
+                        rank={index + 1}
                       />
                     ))}
                   </div>
                 </div>
 
                 <div className="coluna-lista">
-                  <h2 className="titulo-secao-lista" style={{ color: "#d13333ff", borderLeft: "4px solid #d13333ff", paddingLeft: 10 }}>
+                  <h2
+                    className="titulo-secao-lista"
+                    style={{
+                      color: "#d13333ff",
+                      borderLeft: "4px solid #d13333ff",
+                      paddingLeft: 10,
+                    }}
+                  >
                     Piores jogadores
                   </h2>
                   <div className="lista-decks">
                     {worstPlayers.slice(0, 5 * pagina).map((player, index) => (
-                      <PlayerRow 
-                        key={`worst-${player.tag_jogador}`} 
-                        player={player} 
-                        tipo="pior" 
-                        rank={index + 1} 
+                      <PlayerRow
+                        key={`worst-${player.tag_jogador}`}
+                        player={player}
+                        tipo="pior"
+                        rank={index + 1}
                       />
                     ))}
                   </div>
                 </div>
-                
+
                 <div className="btn-container">
-                  <button onClick={() => setPagina(p => p + 1)} className="btn-carregar">Carregar mais</button>
+                  <button
+                    onClick={() => setPagina((p) => p + 1)}
+                    className="btn-carregar"
+                  >
+                    Carregar mais
+                  </button>
                 </div>
               </div>
             )}
 
             {abaAtiva === "clans" && (
-              <div className="msg-vazio" style={{ textAlign: "center", padding: 40, color: "var(--texto-suave)" }}>
+              <div
+                className="msg-vazio"
+                style={{
+                  textAlign: "center",
+                  padding: 40,
+                  color: "var(--texto-suave)",
+                }}
+              >
                 <h3>Clans</h3>
                 <p>Clans</p>
               </div>

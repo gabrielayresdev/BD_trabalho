@@ -38,6 +38,42 @@ class CardController {
       return res.status(500).json({ error: "Erro interno do servidor" });
     }
   }
+
+  public async getCardById(req: Request, res: Response) {
+    try {
+      const { id } = req.params;
+      const idNum = Number(id);
+
+      if (!Number.isInteger(idNum) || idNum <= 0) {
+        return res.status(400).json({ error: "Parâmetro 'id' inválido" });
+      }
+
+      const result = await prisma.$queryRaw<
+        {
+          id_carta: number;
+          nome: string;
+          custo_elixir: number;
+          raridade: string;
+          url_image: string;
+        }[]
+      >(Prisma.sql`
+        SELECT id_carta, nome, custo_elixir, raridade, url_image
+        FROM carta
+        WHERE id_carta = ${idNum}
+        LIMIT 1;
+      `);
+
+      if (!result || result.length === 0) {
+        return res.status(404).json({ error: "Carta não encontrada" });
+      }
+
+      const serialized = JSON.parse(serializeBigInt(result[0]));
+      return res.json(serialized);
+    } catch (err) {
+      console.error("Erro getCardById:", err);
+      return res.status(500).json({ error: "Erro interno do servidor" });
+    }
+  }
 }
 
 export default new CardController();

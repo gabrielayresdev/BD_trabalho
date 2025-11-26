@@ -2,6 +2,7 @@ import { Router } from "express";
 import deckController from "../controllers/deckController";
 import cardController from "../controllers/cardController";
 import playerController from "../controllers/playerController";
+import clanController from "../controllers/clanController";
 
 const route = Router();
 
@@ -11,6 +12,8 @@ route.post("/decks/suggestion", deckController.getDeckSuggestion);
 route.get("/cards", cardController.getBestDecks);
 route.get("/cards/most-used", cardController.getMostUsedCards);
 route.get("/cards/:id", cardController.getCardById);
+
+route.get("/clans/battles", clanController.getTotalBattleAmount);
 
 route.get("/players/never-won", playerController.neverWon);
 route.get("/players/best", playerController.bestPlayers);

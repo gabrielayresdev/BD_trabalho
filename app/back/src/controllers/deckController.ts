@@ -152,7 +152,7 @@ class DeckController {
       const cartas = await prisma.$queryRaw<
         { id_deck: number; id_carta: number; nome: string }[]
       >(Prisma.sql`
-        SELECT dc.id_deck, c.id_carta, c.nome
+        SELECT dc.id_deck, c.id_carta, c.nome, c.custo_elixir, c.raridade, c.url_image
         FROM deck_carta dc
         JOIN carta c ON c.id_carta = dc.id_carta
         WHERE dc.id_deck IN (${Prisma.join(deckIds)});

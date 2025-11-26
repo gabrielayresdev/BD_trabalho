@@ -1,11 +1,16 @@
 import { useEffect, useState, useMemo } from "react";
 import { Link } from "react-router-dom";
-import { fetchCards, fetchTopCards } from "../../lib/api.ts";
-import DeckRow from "../../components/DeckRow.tsx";
-import Header from "../../components/Header.jsx";
+import { 
+  fetchCards, 
+  fetchTopCards, 
+  fetchBestPlayers, 
+  fetchNeverWonPlayers 
+} from "../../lib/api";
+import DeckRow from "../../components/DeckRow";
+import PlayerRow from "../../components/PlayerRow"; 
+import Header from "../../components/Header"; 
 import "./Home.css";
 
-// Tipos
 interface Card {
   id_carta: number;
   nome: string;
@@ -23,106 +28,74 @@ interface Deck {
   taxa_vitoria: string;
 }
 
+interface Player {
+  tag_jogador: string;
+  trofeus: number;
+  total_partidas: number;
+  vitorias: number;
+  taxa_vitoria?: number | string;
+}
+
+type TabOption = "decks" | "cards" | "players" | "clans";
+
 export default function Home() {
   const [cartas, setCartas] = useState<Card[]>([]);
   const [topDecks, setTopDecks] = useState<Deck[]>([]);
+  const [bestPlayers, setBestPlayers] = useState<Player[]>([]);
+  const [worstPlayers, setWorstPlayers] = useState<Player[]>([]);
+  
   const [busca, setBusca] = useState<string>("");
   const [pagina, setPagina] = useState<number>(1);
   const [carregando, setCarregando] = useState<boolean>(true);
-  const [verDecks, setVerDecks] = useState<boolean>(true);
+  const [abaAtiva, setAbaAtiva] = useState<TabOption>("decks");
 
   useEffect(() => {
     const getData = async () => {
-      const decks = await fetchTopCards();
-      const cards = await fetchCards();
-
-      if (!decks || !cards) {
-        console.error("Erro ao buscar dados da API");
-        return;
+      try {
+        const [decksData, cardsData] = await Promise.all([
+          fetchTopCards(),
+          fetchCards()
+        ]);
+        setTopDecks(decksData || []);
+        setCartas(cardsData || []);
+      } catch (error) {
+        console.error("Erro inicial:", error);
+      } finally {
+        setCarregando(false);
       }
-      console.log(decks);
-
-      setTopDecks(decks);
-      setCartas(cards);
-      setCarregando(false);
     };
     getData();
   }, []);
 
   useEffect(() => {
-    setPagina(1);
-  }, [verDecks, busca]);
-
-  /* const conteudoVisivel = useMemo<Deck[] | Card[]>(() => {
-    const filtradas = cartas.filter((c) =>
-      c.nome.toLowerCase().includes(busca.toLowerCase())
-    );
-
-    if (verDecks) {
-      if (busca.length > 0) {
-        if (filtradas.length === 0) return [];
-        const cartaAlvo = filtradas[0];
-        const poolDeCartas = cartas.filter((c) => c.id !== cartaAlvo.id);
-
-        const decksGerados: Deck[] = [];
-        const qtdParaGerar = pagina * 10;
-
-        for (let i = 0; i < qtdParaGerar; i++) {
-          const aleatorias = poolDeCartas
-            .sort(() => 0.5 - Math.random())
-            .slice(0, 7);
-
-          const deckCompleto = [cartaAlvo, ...aleatorias];
-
-          const totalCost = deckCompleto.reduce(
-            (acc, c) => acc + (c.elixirCost || 0),
-            0
-          );
-          const media = (totalCost / 8).toFixed(1);
-
-          const cartaChefe = deckCompleto.reduce(
-            (p, c) => (p.elixirCost > c.elixirCost ? p : c),
-            deckCompleto[0]
-          );
-
-          decksGerados.push({
-            id: `gen-${cartaAlvo.id}-${i}`,
-            cartas: deckCompleto,
-            mediaElixir: media,
-            nome: `${cartaAlvo.name} com ${cartaChefe.name}`,
-            etiqueta: parseFloat(media) > 4.0 ? "Pesado" : "Rápido",
-          });
+    if (abaAtiva === "players" && bestPlayers.length === 0) {
+      const getPlayers = async () => {
+        setCarregando(true);
+        try {
+          const [best, worst] = await Promise.all([
+            fetchBestPlayers(),
+            fetchNeverWonPlayers()
+          ]);
+          setBestPlayers(best || []);
+          setWorstPlayers(worst || []);
+        } catch (error) {
+          console.error("Erro ao buscar jogadores:", error);
+        } finally {
+          setCarregando(false);
         }
-        return decksGerados;
-      }
-
-      const grupos: Deck[] = [];
-      for (let i = 0; i < filtradas.length; i += 8) {
-        const sub = filtradas.slice(i, i + 8);
-        if (sub.length < 8) break;
-
-        const totalCost = sub.reduce((acc, c) => acc + (c.elixirCost || 0), 0);
-        const main = sub.reduce(
-          (p, c) => (p.elixirCost > c.elixirCost ? p : c),
-          sub[0]
-        );
-
-        grupos.push({
-          id: i,
-          cartas: sub,
-          mediaElixir: (totalCost / sub.length).toFixed(1),
-          nome: main ? `${main.name} Ciclo` : "Meta Deck",
-          etiqueta:
-            main && main.elixirCost && main.elixirCost > 3.6
-              ? "Pesado"
-              : "Ciclo Rápido",
-        });
-      }
-      return grupos.slice(0, pagina * 10);
-    } else {
-      return filtradas.slice(0, pagina * 24);
+      };
+      getPlayers();
     }
-  }, [cartas, busca, pagina, verDecks]); */
+  }, [abaAtiva, bestPlayers.length]);
+
+  useEffect(() => {
+    setPagina(1);
+  }, [abaAtiva, busca]);
+
+  const conteudoCartas = useMemo(() => {
+    if (!busca) return cartas;
+    return cartas.filter(c => c.nome.toLowerCase().includes(busca.toLowerCase()));
+  }, [cartas, busca]);
 
   return (
     <div className="conteiner">
@@ -130,67 +103,125 @@ export default function Home() {
 
       <div className="toggle-container">
         <button
-          className={`btn-toggle ${verDecks ? "ativo" : ""}`}
-          onClick={() => setVerDecks(true)}
+          className={`btn-toggle ${abaAtiva === "decks" ? "ativo" : ""}`}
+          onClick={() => setAbaAtiva("decks")}
         >
-          Ver Meta Decks
+          Meta Decks
         </button>
         <button
-          className={`btn-toggle ${!verDecks ? "ativo" : ""}`}
-          onClick={() => setVerDecks(false)}
+          className={`btn-toggle ${abaAtiva === "cards" ? "ativo" : ""}`}
+          onClick={() => setAbaAtiva("cards")}
         >
-          Ver Todas as Cartas
+          Todas as Cartas
+        </button>
+        <button
+          className={`btn-toggle ${abaAtiva === "players" ? "ativo" : ""}`}
+          onClick={() => setAbaAtiva("players")}
+        >
+          Jogadores
+        </button>
+        <button
+          className={`btn-toggle ${abaAtiva === "clans" ? "ativo" : ""}`}
+          onClick={() => setAbaAtiva("clans")}
+        >
+          Clãs
         </button>
       </div>
 
       <main>
         {carregando ? (
-          <div className="carregando">Carregando Meta...</div>
+          <div className="carregando">Carregando dados...</div>
         ) : (
           <>
-            {verDecks ? (
+            {abaAtiva === "decks" && (
               <div className="lista-decks">
                 {topDecks.length > 0 ? (
                   topDecks
                     .slice(0, 5 * pagina)
                     .map((deck) => <DeckRow key={deck.id_deck} deck={deck} />)
                 ) : (
-                  <div className="msg-vazio">
-                    {busca
-                      ? `Nenhuma carta encontrada para "${busca}"`
-                      : "Nenhum deck disponível."}
-                  </div>
+                  <div className="msg-vazio">Nenhum deck encontrado.</div>
                 )}
-              </div>
-            ) : (
-              <div className="grade-todas-cartas">
-                {cartas.slice(0, 18 * pagina).map((carta) => (
-                  <Link
-                    to={`/card/${carta.id_carta}`}
-                    key={carta.id_carta}
-                    className="wrapper-carta grande"
-                  >
-                    <span className="custo-elixir">{carta.custo_elixir}</span>
-                    <img
-                      src={carta.url_image}
-                      alt={carta.nome}
-                      className="img-carta"
-                      loading="lazy"
-                    />
-                    <div className="nome-carta-overlay">{carta.nome}</div>
-                  </Link>
-                ))}
+                 <div className="btn-container">
+                  <button onClick={() => setPagina(p => p + 1)} className="btn-carregar">Carregar mais</button>
+                </div>
               </div>
             )}
 
-            <div className="btn-container">
-              <button
-                onClick={() => setPagina((p) => p + 1)}
-                className="btn-carregar"
-              >
-                Carregar mais
-              </button>
-            </div>
+            {abaAtiva === "cards" && (
+              <>
+                <div className="grade-todas-cartas">
+                  {conteudoCartas.slice(0, 18 * pagina).map((carta) => (
+                    <Link
+                      to={`/card/${carta.id_carta}`}
+                      key={carta.id_carta}
+                      className="wrapper-carta grande"
+                    >
+                      <span className="custo-elixir">{carta.custo_elixir}</span>
+                      <img
+                        src={carta.url_image}
+                        alt={carta.nome}
+                        className="img-carta"
+                        loading="lazy"
+                      />
+                      <div className="">{carta.nome}</div>
+                    </Link>
+                  ))}
+                </div>
+                {conteudoCartas.length > 0 && (
+                  <div className="btn-container">
+                    <button onClick={() => setPagina(p => p + 1)} className="btn-carregar">Carregar mais</button>
+                  </div>
+                )}
+              </>
+            )}
+
+            {abaAtiva === "players" && (
+              <div className="secao-jogadores">
+                <div className="coluna-lista" style={{ marginBottom: 40 }}>
+                  <h2 className="titulo-secao-lista" style={{ color: "#2dd4bf", borderLeft: "4px solid #2dd4bf", paddingLeft: 10 }}>
+                    Top Players
+                  </h2>
+                  <div className="lista-decks">
+                    {bestPlayers.slice(0, 5 * pagina).map((player, index) => (
+                      <PlayerRow 
+                        key={`best-${player.tag_jogador}`} 
+                        player={player} 
+                        tipo="melhor" 
+                        rank={index + 1} 
+                      />
+                    ))}
+                  </div>
+                </div>
+
+                <div className="coluna-lista">
+                  <h2 className="titulo-secao-lista" style={{ color: "#d13333ff", borderLeft: "4px solid #d13333ff", paddingLeft: 10 }}>
+                    Piores jogadores
+                  </h2>
+                  <div className="lista-decks">
+                    {worstPlayers.slice(0, 5 * pagina).map((player, index) => (
+                      <PlayerRow 
+                        key={`worst-${player.tag_jogador}`} 
+                        player={player} 
+                        tipo="pior" 
+                        rank={index + 1} 
+                      />
+                    ))}
+                  </div>
+                </div>
+                
+                <div className="btn-container">
+                  <button onClick={() => setPagina(p => p + 1)} className="btn-carregar">Carregar mais</button>
+                </div>
+              </div>
+            )}
+
+            {abaAtiva === "clans" && (
+              <div className="msg-vazio" style={{ textAlign: "center", padding: 40, color: "var(--texto-suave)" }}>
+                <h3>Clans</h3>
+                <p>Clans</p>
+              </div>
+            )}
           </>
         )}
       </main>

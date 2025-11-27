@@ -5,7 +5,10 @@ import {
   fetchTopCards,
   fetchBestPlayers,
   fetchNeverWonPlayers,
+  fetchClansBattles,
 } from "../../lib/api";
+import ClanRow from "../../components/ClanRow";
+
 import DeckRow from "../../components/DeckRow";
 import PlayerRow from "../../components/PlayerRow";
 import Header from "../../components/Header";
@@ -17,6 +20,12 @@ interface Card {
   custo_elixir: number;
   raridade: string;
   url_image: string;
+}
+interface ClanBattle {
+  tag_cla: string;
+  total_batalhas_envolvidas: number | string;
+  batalhas_vencidas_por_membros: number | string;
+  batalhas_perdidas_por_membros: number | string;
 }
 
 interface Deck {
@@ -43,6 +52,7 @@ export default function Home() {
   const [topDecks, setTopDecks] = useState<Deck[]>([]);
   const [bestPlayers, setBestPlayers] = useState<Player[]>([]);
   const [worstPlayers, setWorstPlayers] = useState<Player[]>([]);
+  const [clans, setClans] = useState<ClanBattle[]>([]);
 
   const [busca, setBusca] = useState<string>("");
   const [pagina, setPagina] = useState<number>(1);
@@ -89,6 +99,23 @@ export default function Home() {
   }, [abaAtiva, bestPlayers.length]);
 
   useEffect(() => {
+    if (abaAtiva === "clans" && clans.length === 0) {
+      const getClans = async () => {
+        setCarregando(true);
+        try {
+          const data = await fetchClansBattles();
+          setClans(data || []);
+        } catch (error) {
+          console.error("Erro ao buscar clãs:", error);
+        } finally {
+          setCarregando(false);
+        }
+      };
+      getClans();
+    }
+  }, [abaAtiva, clans.length]);
+
+  useEffect(() => {
     setPagina(1);
   }, [abaAtiva, busca]);
 
@@ -98,6 +125,22 @@ export default function Home() {
       c.nome.toLowerCase().includes(busca.toLowerCase())
     );
   }, [cartas, busca]);
+
+  const clansOrdenados = useMemo(() => {
+    if (!clans || clans.length === 0) return [];
+
+    return [...clans].sort((a, b) => {
+      const totalA = Number(a.total_batalhas_envolvidas) || 0;
+      const totalB = Number(b.total_batalhas_envolvidas) || 0;
+      const winsA = Number(a.batalhas_vencidas_por_membros) || 0;
+      const winsB = Number(b.batalhas_vencidas_por_membros) || 0;
+
+      const winRateA = totalA > 0 ? winsA / totalA : 0;
+      const winRateB = totalB > 0 ? winsB / totalB : 0;
+
+      return winRateB - winRateA;
+    });
+  }, [clans]);
 
   return (
     <div className="conteiner">
@@ -194,8 +237,8 @@ export default function Home() {
                   <h2
                     className="titulo-secao-lista"
                     style={{
-                      color: "#2dd4bf",
-                      borderLeft: "4px solid #2dd4bf",
+                      color: "#3b82f6",
+                      borderLeft: "4px solid #3b82f6",
                       paddingLeft: 10,
                     }}
                   >
@@ -217,8 +260,8 @@ export default function Home() {
                   <h2
                     className="titulo-secao-lista"
                     style={{
-                      color: "#d13333ff",
-                      borderLeft: "4px solid #d13333ff",
+                      color: "#3b82f6",
+                      borderLeft: "4px solid #3b82f6",
                       paddingLeft: 10,
                     }}
                   >
@@ -248,16 +291,49 @@ export default function Home() {
             )}
 
             {abaAtiva === "clans" && (
-              <div
-                className="msg-vazio"
-                style={{
-                  textAlign: "center",
-                  padding: 40,
-                  color: "var(--texto-suave)",
-                }}
-              >
-                <h3>Clans</h3>
-                <p>Clans</p>
+              <div className="secao-jogadores">
+                <div
+                  className="coluna-lista"
+                  style={{ marginBottom: 40, width: "100%" }}
+                >
+                  <h2
+                    className="titulo-secao-lista"
+                    style={{
+                      color: "#3b82f6",
+                      borderLeft: "4px solid #3b82f6",
+                      paddingLeft: 10,
+                    }}
+                  >
+                    Clãs com mais vitórias por membro
+                  </h2>
+
+                  <div className="lista-decks">
+                    {clansOrdenados.length > 0 ? (
+                      clansOrdenados
+                        .slice(0, 5 * pagina)
+                        .map((clan, index) => (
+                          <ClanRow
+                            key={clan.tag_cla}
+                            clan={clan}
+                            rank={index + 1}
+                          />
+                        ))
+                    ) : (
+                      <div className="msg-vazio">Nenhum clã encontrado.</div>
+                    )}
+                  </div>
+
+                  {clansOrdenados.length > 5 * pagina && (
+                    <div className="btn-container">
+                      <button
+                        onClick={() => setPagina((p) => p + 1)}
+                        className="btn-carregar"
+                      >
+                        Carregar mais
+                      </button>
+                    </div>
+                  )}
+                </div>
               </div>
             )}
           </>

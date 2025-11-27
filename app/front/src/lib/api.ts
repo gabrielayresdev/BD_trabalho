@@ -51,3 +51,7 @@ export async function fetchNeverWonPlayers() {
 export async function fetchAboveAveragePlayers() {
   return await request("/players/above-average-trophies");
 }
+
+export async function fetchClansBattles() {
+  return await request("/clans/battles");
+}

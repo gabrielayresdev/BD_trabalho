@@ -19,16 +19,16 @@ export default function PlayerRow({ player, tipo, rank }: Props) {
     ? (Number(player.taxa_vitoria) * 100).toFixed(1)
     : "0.0";
   
-  const tierColor = tipo === "melhor" ? "var(--destaque-tier-s)" : "#94a3b8"; 
-  const bgTier = tipo === "melhor" ? "rgba(255, 107, 107, 0.15)" : "rgba(148, 163, 184, 0.15)";
+  const tierColor = tipo === "melhor" ? "white" : "white"; 
+  const bgTier = tipo === "melhor" ? "#3b82f6" : "#3b82f6";
   const tierLabel = tipo === "melhor" ? `#${rank}` : "F";
-  const winRateColor = tipo === "melhor" ? "#2dd4bf" : "#d13333ff"; 
+  const winRateColor = tipo === "melhor" ? "white" : "white"; 
 
   return (
     <div className="linha-deck">
       <div
         className="emblema-tier"
-        style={{ color: tierColor, borderColor: tierColor, backgroundColor: bgTier }}
+        style={{ color: tierColor, borderColor: bgTier, backgroundColor: bgTier }}
       >
         {tierLabel}
       </div>

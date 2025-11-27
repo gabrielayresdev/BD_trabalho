@@ -14,7 +14,7 @@ interface Deck {
   vitorias: string;
   derrotas: string;
   total_partidas: string;
-  taxa_vitoria: string; // Ex: "0.63" para 63%
+  taxa_vitoria: string; 
 }
 
 type Props = { deck: Deck };
